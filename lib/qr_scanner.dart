@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_qr_code_scanner/camera_screen.dart';
 import 'package:qr_code_scanner/qr_code_scanner.dart';
 
 class QrScanner extends StatefulWidget {
@@ -81,7 +82,10 @@ class _QrScannerState extends State<QrScanner> {
                     children: [
                       ElevatedButton(
                         child: const Text('Take Selfie'),
-                        onPressed: () {},
+                        onPressed: () {
+                          Navigator.of(context).push(MaterialPageRoute(
+                              builder: (context) => CameraScreen()));
+                        },
                       ),
                       ElevatedButton(
                         child: const Text('Finish'),
