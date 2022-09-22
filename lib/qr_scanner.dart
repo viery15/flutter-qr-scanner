@@ -72,28 +72,86 @@ class _QrScannerState extends State<QrScanner> {
 
       showModalBottomSheet<void>(
         context: context,
+        enableDrag: false,
+        isDismissible: false,
         builder: (BuildContext context) {
           return Container(
-            height: 200,
+            height: 500,
             child: Center(
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 mainAxisSize: MainAxisSize.min,
                 children: <Widget>[
-                  Text(result),
+                  Icon(
+                    Icons.check_circle,
+                    color: Colors.green,
+                    size: 100.0,
+                  ),
+                  Text(
+                    result,
+                    style: TextStyle(
+                      fontSize: 24,
+                      height: 2,
+                      letterSpacing: 5,
+                      decoration: TextDecoration.underline,
+                      decorationStyle: TextDecorationStyle.solid,
+                      fontStyle: FontStyle.italic,
+                    ),
+                  ),
                   SizedBox(height: 50),
                   Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                    mainAxisAlignment: MainAxisAlignment.center,
                     children: [
                       ElevatedButton(
-                        child: const Text('Take Selfie'),
+                        style: ElevatedButton.styleFrom(
+                          primary: Colors.orange,
+                          onPrimary: Colors.white,
+                          shadowColor: Colors.greenAccent,
+                          elevation: 3,
+                          shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(32.0)),
+                          minimumSize: Size(120, 40), //////// HERE
+                        ),
+                        child: RichText(
+                          text: TextSpan(
+                            children: [
+                              WidgetSpan(
+                                child: Icon(Icons.camera_alt, size: 20),
+                              ),
+                              TextSpan(
+                                text: " Take Selfie",
+                              ),
+                            ],
+                          ),
+                        ),
                         onPressed: () {
                           Navigator.of(context).push(MaterialPageRoute(
                               builder: (context) => CameraScreen()));
                         },
                       ),
+                      SizedBox(width: 20),
                       ElevatedButton(
-                        child: const Text('Finish'),
+                        style: ElevatedButton.styleFrom(
+                          primary: Colors.green,
+                          onPrimary: Colors.white,
+                          shadowColor: Colors.greenAccent,
+                          elevation: 3,
+                          shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(32.0)),
+                          minimumSize: Size(120, 40), //////// HERE
+                        ),
+                        child: RichText(
+                          text: TextSpan(
+                            children: [
+                              WidgetSpan(
+                                child: Icon(Icons.check, size: 20),
+                              ),
+                              TextSpan(
+                                text: " Finish",
+                              ),
+                            ],
+                          ),
+                        ),
                         onPressed: () async {
                           setState(() {
                             Navigator.pop(context, true);
