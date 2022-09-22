@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_qr_code_scanner/camera_screen.dart';
+import 'package:flutter_qr_code_scanner/datasource.dart';
 import 'package:qr_code_scanner/qr_code_scanner.dart';
 
 class QrScanner extends StatefulWidget {
@@ -61,10 +62,14 @@ class _QrScannerState extends State<QrScanner> {
       this.controller = controller;
     });
     controller.scannedDataStream.listen((scanData) async {
-      setState(() {
-        result = scanData.code;
-      });
       await controller.pauseCamera();
+      var id = scanData.code;
+      final invitation = await getInvitation(id);
+      print(invitation);
+      setState(() {
+        result = invitation.fullname;
+      });
+
       showModalBottomSheet<void>(
         context: context,
         builder: (BuildContext context) {
