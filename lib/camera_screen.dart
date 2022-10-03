@@ -1,12 +1,15 @@
 import 'dart:async';
 import 'dart:developer';
 import 'dart:io';
+import 'dart:typed_data';
 
 import 'package:camera/camera.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
+import 'package:flutter_qr_code_scanner/datasource.dart';
+import 'package:flutter_qr_code_scanner/qr_scanner.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:permission_handler/permission_handler.dart';
+import 'package:another_flushbar/flushbar.dart';
 
 import '../main.dart';
 
@@ -30,6 +33,7 @@ class _CameraScreenState extends State<CameraScreen>
   Duration myDuration = const Duration(seconds: 7);
   Timer countdownTimer;
   bool pictureCaptured = false;
+  int seconds = 7;
 
   List<File> allFileList = [];
 
@@ -146,21 +150,25 @@ class _CameraScreenState extends State<CameraScreen>
 
   String strDigits(int n) => n.toString().padLeft(2, '0');
 
-  void setCountDown() {
+  Future<void> setCountDown() async {
     const reduceSecondsBy = 1;
-    setState(() {
-      final seconds = myDuration.inSeconds - reduceSecondsBy;
-      if (seconds < 0) {
-        if (!pictureCaptured) {
-          pictureCaptured = true;
-          postTakePicture();
+    if (seconds > 0) {
+      setState(() {
+        seconds = myDuration.inSeconds - reduceSecondsBy;
+        if (seconds < 0) {
+          if (!pictureCaptured) {
+            pictureCaptured = true;
+          }
+        } else {
+          myDuration = Duration(seconds: seconds);
         }
+      });
+    }
 
-        countdownTimer.cancel();
-      } else {
-        myDuration = Duration(seconds: seconds);
-      }
-    });
+    print('detik $seconds');
+    if (seconds == 1) {
+      await postTakePicture();
+    }
   }
 
   void showBottomDialog(result) {
@@ -186,32 +194,67 @@ class _CameraScreenState extends State<CameraScreen>
 
   Future<void> postTakePicture() async {
     final CameraController cameraController = controller;
+    print('masuk postTakePicture');
 
     if (cameraController.value.isTakingPicture) {
       return null;
     }
     try {
+      // controller.pausePreview();
       XFile rawImage = await cameraController.takePicture();
-      File imageFile = File(rawImage.path);
+      Uint8List fileBytes = await rawImage.readAsBytes();
+      await uploadPhoto(fileBytes);
 
-      int currentUnix = DateTime.now().millisecondsSinceEpoch;
+      showSuccessFlashbar();
 
-      final directory = await getApplicationDocumentsDirectory();
+      await Future.delayed(const Duration(seconds: 2), () {
+        Navigator.of(context)
+            .push(MaterialPageRoute(builder: (context) => QrScanner()));
+      });
 
-      String fileFormat = imageFile.path.split('.').last;
+      // File imageFile = File(rawImage.path);
 
-      print(imageFile);
+      // int currentUnix = DateTime.now().millisecondsSinceEpoch;
 
-      await imageFile.copy(
-        '${directory.path}/$currentUnix.$fileFormat',
-      );
+      // final directory = await getApplicationDocumentsDirectory();
 
-      refreshAlreadyCapturedImages();
+      // String fileFormat = imageFile.path.split('.').last;
 
-      showBottomDialog(rawImage.name);
+      // print(imageFile);
+
+      // await imageFile.copy(
+      //   '${directory.path}/$currentUnix.$fileFormat',
+      // );
+
+      // refreshAlreadyCapturedImages();
+
+      // showBottomDialog(rawImage.name);
+      // Flushbar(
+      //   flushbarPosition: FlushbarPosition.TOP,
+      // )
+      //   ..title = "Hey Ninja"
+      //   ..message =
+      //       "Lorem Ipsum is simply dummy text of the printing and typesetting industry"
+      //   ..duration = Duration(seconds: 3)
+      //   ..show(context);
     } on CameraException catch (e) {
       print('Error occured while taking picture: $e');
     }
+  }
+
+  void showSuccessFlashbar() {
+    Flushbar(
+      borderRadius: 8,
+      padding: EdgeInsets.all(10),
+      backgroundColor: Colors.green.shade700,
+      boxShadows: [
+        BoxShadow(color: Colors.black45, offset: Offset(3, 3), blurRadius: 3)
+      ],
+      dismissDirection: FlushbarDismissDirection.HORIZONTAL,
+      forwardAnimationCurve: Curves.fastLinearToSlowEaseIn,
+      title: 'Success',
+      message: 'Thank you for coming',
+    )..show(context);
   }
 
   double getAspectRatio(mediaSize) {
