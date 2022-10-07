@@ -15,6 +15,13 @@ import '../main.dart';
 
 //https://github.com/sbis04/flutter_camera_demo/blob/main/lib/screens/camera_screen.dart
 class CameraScreen extends StatefulWidget {
+  final String id;
+
+  const CameraScreen({
+    Key key,
+    this.id,
+  }) : super(key: key);
+
   @override
   _CameraScreenState createState() => _CameraScreenState();
 }
@@ -203,7 +210,7 @@ class _CameraScreenState extends State<CameraScreen>
       // controller.pausePreview();
       XFile rawImage = await cameraController.takePicture();
       Uint8List fileBytes = await rawImage.readAsBytes();
-      await uploadPhoto(fileBytes);
+      await uploadPhoto(fileBytes, widget.id);
 
       showSuccessFlashbar();
 

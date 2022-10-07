@@ -12,11 +12,11 @@ Future<Invitation> getInvitation(String id) async {
   if (response.statusCode == 200) {
     return Invitation.fromJson(json.decode(response.body));
   } else {
-    throw Exception('Failed to load invitation');
+    return null;
   }
 }
 
-Future<void> uploadPhoto(Uint8List file) async {
+Future<void> uploadPhoto(Uint8List file, String id) async {
   try {
     print('masuk uploadPhoto');
     var url = Uri.http('34.101.212.89', '/invitations/upload');
@@ -25,7 +25,7 @@ Future<void> uploadPhoto(Uint8List file) async {
       ..headers['accept'] = 'application/json'
       ..headers['Content-Type'] = 'multipart/form-data';
 
-    request.fields['id'] = '625357038c6a3e15d2dcb99b';
+    request.fields['id'] = id;
     request.files.add(http.MultipartFile.fromBytes('attachedFile', file,
         filename: '625357038c6a3e15d2dcb99b'));
 
