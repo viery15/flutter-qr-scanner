@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_qr_code_scanner/camera_screen.dart';
 import 'package:flutter_qr_code_scanner/datasource.dart';
 import 'package:flutter_qr_code_scanner/home.dart';
 import 'package:qr_code_scanner/qr_code_scanner.dart';
@@ -12,6 +11,7 @@ class QrScanner extends StatefulWidget {
 class _QrScannerState extends State<QrScanner> {
   final GlobalKey qrKey = GlobalKey();
   String result = "";
+  bool isVip = false;
   QRViewController controller;
 
   @override
@@ -74,6 +74,9 @@ class _QrScannerState extends State<QrScanner> {
 
       setState(() {
         result = invitation.fullname;
+        if (invitation.isVip) {
+          isVip = invitation.isVip;
+        }
       });
 
       showResultModal(true, id: id);
@@ -103,50 +106,40 @@ class _QrScannerState extends State<QrScanner> {
                   style: TextStyle(
                     fontSize: 24,
                     height: 2,
-                    letterSpacing: 5,
+                    letterSpacing: 2,
                     decoration: TextDecoration.underline,
                     decorationStyle: TextDecorationStyle.solid,
                     fontStyle: FontStyle.italic,
                   ),
                 ),
+                isVip == true
+                    ? Container(
+                        decoration: BoxDecoration(
+                            color: Colors.green,
+                            border: Border.all(color: Colors.green),
+                            borderRadius: BorderRadius.only(
+                                bottomLeft: Radius.circular(10.0),
+                                bottomRight: Radius.circular(10.0))),
+                        child: Padding(
+                          padding: EdgeInsets.all(3.0),
+                          child: Text(
+                            'VIP',
+                            style: TextStyle(
+                              fontSize: 20,
+                              height: 2,
+                              letterSpacing: 5,
+                              decorationStyle: TextDecorationStyle.solid,
+                              fontWeight: FontWeight.bold,
+                              color: Colors.white,
+                            ),
+                          ),
+                        ),
+                      )
+                    : SizedBox(height: 1),
                 SizedBox(height: 50),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    isSuccess
-                        ? ElevatedButton(
-                            style: ElevatedButton.styleFrom(
-                              primary: Colors.orange,
-                              onPrimary: Colors.white,
-                              shadowColor: Colors.greenAccent,
-                              elevation: 3,
-                              shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(32.0)),
-                              minimumSize: Size(120, 40), //////// HERE
-                            ),
-                            child: RichText(
-                              text: TextSpan(
-                                children: [
-                                  WidgetSpan(
-                                    child: Icon(Icons.camera_alt, size: 20),
-                                  ),
-                                  TextSpan(
-                                    text: " Take Selfie",
-                                  ),
-                                ],
-                              ),
-                            ),
-                            onPressed: () {
-                              Navigator.of(context).push(
-                                MaterialPageRoute(
-                                  builder: (context) => CameraScreen(
-                                    id: id,
-                                  ),
-                                ),
-                              );
-                            },
-                          )
-                        : SizedBox.shrink(),
                     SizedBox(width: 20),
                     ElevatedButton(
                       style: ElevatedButton.styleFrom(
@@ -165,7 +158,7 @@ class _QrScannerState extends State<QrScanner> {
                               child: Icon(Icons.check, size: 20),
                             ),
                             TextSpan(
-                              text: " Finish",
+                              text: " Ok",
                             ),
                           ],
                         ),

@@ -5,13 +5,17 @@ import 'package:flutter_qr_code_scanner/models/invitation_model.dart';
 import 'package:http/http.dart' as http;
 
 Future<Invitation> getInvitation(String id) async {
-  // return Invitation(fullname: 'Viery Darmawan', city: 'Surabaya');
-  var url = Uri.http('34.101.212.89', '/invitations/$id');
-  final response = await http.get(url);
+  try {
+    var url = Uri.https('api.nia-viery.life', '/invitations/$id/attend');
+    final response = await http.post(url);
 
-  if (response.statusCode == 200) {
-    return Invitation.fromJson(json.decode(response.body));
-  } else {
+    if (response.statusCode == 200) {
+      return Invitation.fromJson(json.decode(response.body));
+    } else {
+      return null;
+    }
+  } catch (err) {
+    print(err);
     return null;
   }
 }
@@ -19,17 +23,15 @@ Future<Invitation> getInvitation(String id) async {
 Future<void> uploadPhoto(Uint8List file, String id) async {
   try {
     print('masuk uploadPhoto');
-    var url = Uri.http('34.101.212.89', '/invitations/upload');
+    var url = Uri.https('api.nia-viery.life', '/invitations/upload');
 
     final request = http.MultipartRequest('POST', url)
       ..headers['accept'] = 'application/json'
       ..headers['Content-Type'] = 'multipart/form-data';
 
     request.fields['id'] = id;
-    request.files.add(http.MultipartFile.fromBytes('attachedFile', file,
-        filename: '625357038c6a3e15d2dcb99b'));
-
-    print(request);
+    request.files
+        .add(http.MultipartFile.fromBytes('attachedFile', file, filename: id));
 
     await request.send();
   } catch (err) {
